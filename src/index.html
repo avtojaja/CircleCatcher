@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CircleCatcher</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<style>
+.circles {
+  position: relative;
+}
+.circle {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 10px;
+  margin: 10px;
+  padding: 0;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.circle-black {
+  color: white;
+  background: black;
+  border: 5px dotted red;
+}
+.circle-red {
+  color: white;
+  background: red;
+  border: 2px solid green;
+}
+.circle-blue {
+  color: white;
+  background: blue;
+  border: 5px dashed yellow;
+}
+.details {
+  background-color: black;
+  color: white;
+  font-family: arial;
+  font-size: 20px;
+}
+.details div {
+  color: #2c8bff;
+}
+.details div span {
+  color: white;
+}
+</style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row p-4 text-center details">
+    <div class="col-md-3 level">LEVEL: <span></span></div>
+    <div class="col-md-3 score">SCORE: <span></span></div>
+    <div class="col-md-3 username">USER: <span></span></div>
+    <div class="col-md-3 fails">FAILS: <span></span></div>
+  </div>
+</div>
+
+<div class="circles">
+</div>
+
+<script>
+$(function() {
+  var userScore = 0;
+  var userLevel = 0;
+  var userName = 'player';
+  var userFails = 0;
+  var maxFails = 10;
+  var scoreMax = 50;
+  var scoreMin = 10;
+  var gameOver = false;
+  var $circles = $('.circles');
+
+  addScore(100);
+  setLevel(1);
+  addFail(0);
+  $('.username span').text(userName);
+
+  var circlesInterval = setInterval(function() {
+    var $circle = $('<div>')
+      .addClass('circle')
+      .addClass(randomCircleClass())
+      .text(scoreMax)
+      .css({
+        top: randomInt(0, $(window).height() - 200),
+        left: randomInt(0, $(window).width() - 200)
+      })
+      .animate({
+        top: '-=30px',
+        left: '-=30px',
+        width: '+=100px',
+        height: '+=100px',
+        fontSize: '+=40px',
+        lineHeight: '+=70px',
+        padding: '+=10px'
+      }, {
+        duration: 2000,
+        step: function(now) {
+          $(this).text(Math.floor(scoreMax * 10 / now - scoreMax + scoreMin));
+        },
+        complete: function() {
+          $(this).fadeOut('slow');
+
+          if (!gameOver) {
+            userFail();
+          }
+        }
+      })
+      .click(function() {
+        addScore(parseInt($(this).text()));
+        $(this).stop(false, false).fadeOut().remove();
+      });
+
+    $circles.append($circle);
+  }, 700);
+
+  function addScore(points) {
+    userScore += points;
+    $('.score span').fadeOut('fast').text(userScore).fadeIn('fast');
+  }
+
+  function addFail(fail) {
+    userFails += fail;
+    $('.fails span').fadeOut('fast').text(userFails).fadeIn('fast');
+  }
+
+  function setLevel(level) {
+    userLevel = level;
+    $('.level span').fadeOut('fast').text(userLevel).fadeIn('fast');
+  }
+
+  function randomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function randomCircleClass() {
+    var colors = [
+      'red',
+      'blue',
+      'black'
+    ];
+
+    return 'circle-' + colors[randomInt(0, colors.length - 1)];
+  }
+
+  function userFail() {
+    if (userFails == maxFails) {
+      gameOver = true;
+      clearInterval(circlesInterval);
+      $('.circle').remove();
+      alert('Game Over');
+    }
+    else {
+      addFail(1);
+    }
+  }
+});
+</script>
+</body>
+</html>
